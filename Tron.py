@@ -22,7 +22,7 @@ Data = [   [1,1,1,1,1,1,1,1,1,1,1,1,1],
            [1,0,0,0,0,0,0,0,0,0,0,0,1],
            [1,0,0,0,0,0,0,0,0,0,0,0,1],
            [1,0,0,0,0,0,0,0,0,0,0,0,1],
-           [1,1,0,0,0,0,0,0,0,0,0,0,1],
+           [1,0,0,0,0,0,0,0,0,0,0,0,1],
            [1,1,1,1,1,1,1,1,1,1,1,1,1] ]
 
 GInit  = np.array(Data,dtype=np.int8)
@@ -43,7 +43,7 @@ class Game:
     def copy(self): 
         return copy.deepcopy(self)
 
-GameInit = Game(GInit,3,5)
+GameInit = Game(GInit,1,1)
 
 ##############################################################
 #
@@ -119,6 +119,22 @@ def AfficheScore(Game):
 #
 # gestion du joueur IA
 
+def ListMoves(Game):
+    x, y = Game.PlayerX, Game.PlayerY
+    a = Game.Grille[x,y+1]
+    b = Game.Grille[x+1,y]
+    c = Game.Grille[x,y-1]
+    d = Game.Grille[x-1,y]
+
+    listRet = []
+
+    if a == 0 : listRet.append((0,1))
+    if b == 0 : listRet.append((1,0))
+    if c == 0 : listRet.append((0,-1))
+    if d == 0 : listRet.append((-1,0))
+
+    return listRet
+
 # VOTRE CODE ICI 
 
 def Play(Game):   
@@ -128,19 +144,22 @@ def Play(Game):
 
     Game.Grille[x,y] = 2  # laisse la trace de la moto
 
-    y += 1  # on essaye de bouger vers le haut
-    
-    v = Game.Grille[x,y]
-    
-    if v > 0 :
-        # collision détectée
-        return True # partie terminée
+    mvt = ListMoves(Game)
+    nbMvt = len(mvt)
+
+    if nbMvt == 0 :
+        # collision détectée car aucune option possible
+        return True  # partie terminée
+
     else :
-       Game.PlayerX = x  # valide le déplacement
-       Game.PlayerY = y  # valide le déplacement
-       Game.Score += 1
-       return False   # la partie continue
-     
+        pos = random.randrange(nbMvt)
+        x += mvt[pos][0]
+        y += mvt[pos][1]
+
+        Game.PlayerX = x  # valide le déplacement
+        Game.PlayerY = y  # valide le déplacement
+        Game.Score += 1
+        return False   # la partie continue
 
 ################################################################################
      
@@ -167,11 +186,3 @@ def Partie():
 AfficherPage(0)
 Window.after(100,Partie)
 Window.mainloop()
-      
-
-    
-        
-
-      
- 
-
