@@ -35,7 +35,7 @@ class Game:
     def copy(self):
         return copy.deepcopy(self)
 
-GameInit = Game(GInit,3,5)
+GameInit = Game(GInit,1,1)
 
 #############################################################
 #
@@ -74,6 +74,27 @@ ds = np.array([0,  1,  1,  1,  1],dtype=np.int8)
 Debug = True
 nb = 5 # nb de parties
 
+def ListMoves(G,I,X,Y):
+    LPossible = np.zeros((nb,4),dtype=np.int8)
+    indices = np.zeros(nb,dtype=np.int8)
+
+    Vgauche = (G[I, X - 1, Y] == 0) * 1
+    LPossible[I,indices[I]] = Vgauche
+    indices[I] += Vgauche
+
+    Vdroite = (G[I, X + 1, Y] == 0) * 1
+    LPossible[I,indices[I]] = Vdroite * 3
+    indices[I] += Vdroite
+
+    Vhaut = (G[I, X, Y + 1] == 0) * 1
+    LPossible[I,indices[I]] = Vhaut * 2
+    indices[I] += Vhaut
+
+    Vbas = (G[I, X, Y - 1] == 0) * 1
+    LPossible[I,indices[I]] = Vbas * 4
+    indices[I] += Vbas
+
+    return (LPossible,indices)
 
 def Simulate(Game):
 
@@ -96,10 +117,17 @@ def Simulate(Game):
         # marque le passage de la moto
         G[I, X, Y] = 2
 
+        LPossible, indices = ListMoves(G, I, X, Y)
+        indices[indices == 0] = 1
+
 
         # Direction : 2 = vers le haut
-        Choix = np.ones(nb,dtype=np.uint8) * 2
+        # Choix = np.ones(nb,dtype=np.uint8) * 2
+        Choix = np.random.randint(12, size=nb)
+        Choix = Choix % indices
+        Choix = LPossible[I, Choix]
 
+        print(Choix)
 
         #DEPLACEMENT
         DX = dx[Choix]
