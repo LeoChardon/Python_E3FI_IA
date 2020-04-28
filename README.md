@@ -4,4 +4,4 @@ Gianni Jouve
 Léo Chardon
 Pierot Cavalier
 
-Le fichier TronWithAll contient touts les codes, fonctionnels et commentés
+Le fichier TronWithAll contient tous les codes des autres fichiers, fonctionnels et commentés
