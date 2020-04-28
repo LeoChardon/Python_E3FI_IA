@@ -2,6 +2,7 @@ import tkinter as tk
 import random
 import numpy as np
 import copy
+import time
 
 #################################################################################
 #
@@ -252,7 +253,9 @@ CurrentGame = GameInit.copy()
 
 
 def Partie():
+    Tstart = time.time()
     PartieTermine = Play(CurrentGame)
+    print(time.time() - Tstart)
 
     if not PartieTermine:
         Affiche(CurrentGame)
