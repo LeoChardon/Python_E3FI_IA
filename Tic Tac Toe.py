@@ -6,6 +6,9 @@ import numpy as np
 ###############################################################################
 # création de la fenetre principale  - ne pas toucher
 
+winner = 0
+player = 0
+
 LARG = 300
 HAUT = 300
 
@@ -47,9 +50,9 @@ canvas.place(x=0,y=0)
 #
 #  Parametres du jeu
  
-Grille = [ [0,0,1], 
-           [2,0,0], 
-           [0,0,0] ]  # attention les lignes représentent les colonnes de la grille
+Grille = [ [0,0,0], 
+           [0,0,0], 
+           [0,0,0] ]
            
 Grille = np.array(Grille)
 Grille = Grille.transpose()  # pour avoir x,y
@@ -60,24 +63,64 @@ Grille = Grille.transpose()  # pour avoir x,y
 #
 # gestion du joueur humain et de l'IA
 # VOTRE CODE ICI 
+def ResetGame() :
+    global player
+    player = 1
+    for i in range(0,3):
+        for j in range(0,3):
+            Grille[i][j] = 0
 
-def Play(x,y):             
-    Grille[x][y] = 1
-   
+def Play(x,y,z):             
+    Grille[x][y] = z
+  
+def MatchNul():
+    for i in range(0,3):
+        for j in range(0,3):
+            if (Grille[i][j] == 0):
+                return False
+    return True
+
+def Victoire(): #On regarde si le joueur a gagné
+    for i in range (0,3):
+		#Lignes
+        if (Grille[i][0] == Grille[i][1] and Grille[i][1] == Grille[i][2]):
+            return Grille[i][0]
+
+		#Colonnes
+        if (Grille[0][i] == Grille[1][i] and Grille[1][i] == Grille[2][i]):
+            return Grille[0][i]
+
+	#Diagonales
+    if (Grille[0][0] == Grille[1][1] and Grille[1][1] == Grille[2][2]):
+        return Grille[0][0]
+
+    if (Grille[0][2] == Grille[1][1] and Grille[1][1] == Grille[2][0]):
+        return Grille[0][2]
+	
+    return 0
           
-    
+def Partiefinie(): #Renvoie qui gagne
+    win = Victoire()
+    if (win):
+        return 0 	#Partie non fini
+    return win
     
 ################################################################################
 #    
 # Dessine la grille de jeu
 
-def Dessine(PartieGagnee = False):
+def Dessine(winner):
         ## DOC canvas : http://tkinter.fdex.eu/doc/caw.html
         canvas.delete("all")
-        
+        color = "blue"
+        if (winner == 1) :
+            color = "red"
+        if (winner == 2) :
+            color = "yellow"
+
         for i in range(4):
-            canvas.create_line(i*100,0,i*100,300,fill="blue", width="4" )
-            canvas.create_line(0,i*100,300,i*100,fill="blue", width="4" )
+            canvas.create_line(i*100,0,i*100,300,fill=color, width="4" )
+            canvas.create_line(0,i*100,300,i*100,fill=color, width="4" )
             
         for x in range(3):
             for y in range(3):
@@ -97,19 +140,22 @@ def Dessine(PartieGagnee = False):
 #  fnt appelée par un clic souris sur la zone de dessin
 
 def MouseClick(event):
-   
+    global player
+    global winner
     Window.focus_set()
     x = event.x // 100  # convertit une coordonée pixel écran en coord grille de jeu
     y = event.y // 100
     if ( (x<0) or (x>2) or (y<0) or (y>2) ) : return
      
-    
     print("clicked at", x,y)
     
-    Play(x,y)  # gestion du joueur humain et de l'IA
-    
-    Dessine()
-    
+    Play(x,y,player%2+1)  # gestion du joueur humain et de l'IA
+    winner = Victoire()
+    if (winner or MatchNul()):
+        ResetGame()
+    Dessine(winner)
+    player += 1
+
 canvas.bind('<ButtonPress-1>',    MouseClick)
 
 #####################################################################################
@@ -117,7 +163,7 @@ canvas.bind('<ButtonPress-1>',    MouseClick)
 #  Mise en place de l'interface - ne pas toucher
 
 AfficherPage(0)
-Dessine()
+Dessine(winner)
 Window.mainloop()
 
 
