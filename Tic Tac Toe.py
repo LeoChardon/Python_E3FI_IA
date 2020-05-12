@@ -8,6 +8,8 @@ import numpy as np
 
 winner = 0
 player = 0
+score_ia = 0
+score_humain = 0
 
 LARG = 300
 HAUT = 300
@@ -63,9 +65,15 @@ Grille = Grille.transpose()  # pour avoir x,y
 #
 # gestion du joueur humain et de l'IA
 # VOTRE CODE ICI 
-def ResetGame() :
+def ResetGame(winner) :
     global player
+    global score_humain
+    global score_ia
     player = 1
+    if winner == 1 :
+        score_humain += 1
+    else : 
+        score_ia += 1
     for i in range(0,3):
         for j in range(0,3):
             Grille[i][j] = 0
@@ -83,18 +91,18 @@ def MatchNul():
 def Victoire(): #On regarde si le joueur a gagné
     for i in range (0,3):
 		#Lignes
-        if (Grille[i][0] == Grille[i][1] and Grille[i][1] == Grille[i][2]):
+        if (Grille[i][0] != 0 and Grille[i][0] == Grille[i][1] and Grille[i][1] == Grille[i][2]):
             return Grille[i][0]
 
-		#Colonnes
-        if (Grille[0][i] == Grille[1][i] and Grille[1][i] == Grille[2][i]):
+		#Colonnes 
+        if (Grille[0][i] != 0 and Grille[0][i] == Grille[1][i] and Grille[1][i] == Grille[2][i]):
             return Grille[0][i]
 
 	#Diagonales
-    if (Grille[0][0] == Grille[1][1] and Grille[1][1] == Grille[2][2]):
+    if (Grille[0][0] != 0 and Grille[0][0] == Grille[1][1] and Grille[1][1] == Grille[2][2]):
         return Grille[0][0]
 
-    if (Grille[0][2] == Grille[1][1] and Grille[1][1] == Grille[2][0]):
+    if (Grille[2][0] != 0 and Grille[0][2] == Grille[1][1] and Grille[1][1] == Grille[2][0]):
         return Grille[0][2]
 	
     return 0
@@ -110,27 +118,30 @@ def Partiefinie(): #Renvoie qui gagne
 # Dessine la grille de jeu
 
 def Dessine(winner):
-        ## DOC canvas : http://tkinter.fdex.eu/doc/caw.html
-        canvas.delete("all")
-        color = "blue"
-        if (winner == 1) :
-            color = "red"
-        if (winner == 2) :
-            color = "yellow"
+    ## DOC canvas : http://tkinter.fdex.eu/doc/caw.html
+    canvas.delete("all")
+    color = "blue"
+    if (winner == 1) :
+        color = "red"
+    if (winner == 2) :
+        color = "yellow"
 
-        for i in range(4):
-            canvas.create_line(i*100,0,i*100,300,fill=color, width="4" )
-            canvas.create_line(0,i*100,300,i*100,fill=color, width="4" )
-            
-        for x in range(3):
-            for y in range(3):
-                xc = x * 100 
-                yc = y * 100 
-                if ( Grille[x][y] == 1):
-                    canvas.create_line(xc+10,yc+10,xc+90,yc+90,fill="red", width="4" )
-                    canvas.create_line(xc+90,yc+10,xc+10,yc+90,fill="red", width="4" )
-                if ( Grille[x][y] == 2):
-                    canvas.create_oval(xc+10,yc+10,xc+90,yc+90,outline="yellow", width="4" )
+    for i in range(4):
+        canvas.create_line(i*100,0,i*100,300,fill=color, width="4" )
+        canvas.create_line(0,i*100,300,i*100,fill=color, width="4" )
+        
+    for x in range(3):
+        for y in range(3):
+            xc = x * 100 
+            yc = y * 100 
+            if ( Grille[x][y] == 1):
+                canvas.create_line(xc+10,yc+10,xc+90,yc+90,fill="red", width="4" )
+                canvas.create_line(xc+90,yc+10,xc+10,yc+90,fill="red", width="4" )
+            if ( Grille[x][y] == 2):
+                canvas.create_oval(xc+10,yc+10,xc+90,yc+90,outline="yellow", width="4" )
+
+    canvas.create_text(LARG-30, 20, text="IA : "+str(score_ia), fill="white", font="Arial")
+    canvas.create_text(30, 20, text="You : "+str(score_humain), fill="white", font="Arial")
         
        
         
@@ -152,7 +163,7 @@ def MouseClick(event):
     Play(x,y,player%2+1)  # gestion du joueur humain et de l'IA
     winner = Victoire()
     if (winner or MatchNul()):
-        ResetGame()
+        ResetGame(winner)
     Dessine(winner)
     player += 1
 
