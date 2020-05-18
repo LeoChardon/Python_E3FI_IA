@@ -72,8 +72,9 @@ def ResetGame(winner) :
     player = 1
     if winner == 1 :
         score_humain += 1
-    else : 
+    elif winner == 2 : 
         score_ia += 1
+	#else match nul donc pas de score en plus
     for i in range(0,3):
         for j in range(0,3):
             Grille[i][j] = 0
