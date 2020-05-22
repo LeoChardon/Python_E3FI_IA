@@ -116,7 +116,6 @@ Ghosts.append(  [LARGEUR//2, HAUTEUR // 2 ,  "cyan"  ]   )
 Ghosts.append(  [LARGEUR//2, HAUTEUR // 2 ,  "red"   ]     )         
 
 
-
 # variable pour le score
 
 Score = 0
@@ -213,6 +212,9 @@ def Affiche():
 #################################################################
 ##
 ##  IA RANDOM
+
+# bool de fin
+end = False
 # Création de la grille des GUM
 Grille = copy.deepcopy(TBL)
 
@@ -302,6 +304,8 @@ def IA():
    PacManPos[0] += move[0]
    PacManPos[1] += move[1]
    
+
+
    #deplacement Fantome
    for F in Ghosts:
       if TBL[F[0]][F[1]] == 2 :
@@ -312,7 +316,16 @@ def IA():
       choix = random.randrange(len(L))
       F[0] += L[choix][0]
       F[1] += L[choix][1]
+      #Collision entre pacman et les FANTOMES
+      if( PacManPos[0] - move[0] == F[0]):
+         if( PacManPos[1] - move[1] == F[1]):
+            end = True
+         
+      
 
+   
+
+   
 def EatGUM():
    global PacManPos, Score
    for x in range(LARGEUR):
@@ -423,15 +436,17 @@ def EndGame():
          canvas = tk.Canvas( Frame1, width = screeenWidth, height = screenHeight )
          canvas.place(x=0,y=0)
          canvas.configure(background='black')
-         canvas.create_text(screeenWidth // 2, screenHeight//2 , text = "Fin de partie ! \nScore :" + str(Score), fill ="yellow", font = PoliceEndText)
-         return True
+         canvas.create_text(screeenWidth // 2, screenHeight//2 , text = "Fin de partie !", fill ="yellow", font = PoliceEndText)
+         end = True
    if Score == 1000:
       canvas = tk.Canvas( Frame1, width = screeenWidth, height = screenHeight )
       canvas.place(x=0,y=0)
       canvas.configure(background='black')
-      canvas.create_text(screeenWidth // 2, screenHeight//2 , text = "Fin de partie ! \nScore :" + str(Score), fill ="yellow", font = PoliceEndText)
-      return True
-   return False
+      canvas.create_text(screeenWidth // 2, screenHeight//2 , text = "Fin de partie !", fill ="yellow", font = PoliceEndText)
+      end = True
+   
+
+   
 
       
 
@@ -441,17 +456,21 @@ def EndGame():
 ##
 ##   GAME LOOP
 def MainLoop():
+  
+
    EndGame()
-   if(EndGame() != True):
-      IA()
+   if(end != True):
+      
       Affiche()
       EatGUM() 
+      IA()
       UpdatePath(Grille, '', '')
       UpdatePath(GrilleGhost1, 'Ghost', 1)
       UpdatePath(GrilleGhost2, 'Ghost', 2)
       UpdatePath(GrilleGhost3, 'Ghost', 3)
       UpdatePath(GrilleGhost4, 'Ghost', 4)
       UpdateGridDist(GrilleDist)
+      
 
   
  
