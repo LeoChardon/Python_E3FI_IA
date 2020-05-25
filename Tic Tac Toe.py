@@ -1,13 +1,14 @@
 import tkinter as tk
 from tkinter import messagebox
 import random
+import time
 import numpy as np
 
 ###############################################################################
 # création de la fenetre principale  - ne pas toucher
 
 winner = 0
-player = 0
+player = 1
 score_ia = 0
 score_humain = 0
 
@@ -80,7 +81,10 @@ def ResetGame(winner) :
             Grille[i][j] = 0
 
 def Play(x,y,z):             
-    Grille[x][y] = z
+    if Grille[x][y] == 0:
+        Grille[x][y] = z
+        return True
+    return False
   
 def MatchNul():
     for i in range(0,3):
@@ -108,11 +112,6 @@ def Victoire(): #On regarde si le joueur a gagné
 	
     return 0
           
-def Partiefinie(): #Renvoie qui gagne
-    win = Victoire()
-    if (win):
-        return 0 	#Partie non fini
-    return win
     
 ################################################################################
 #    
@@ -151,7 +150,106 @@ def Dessine(winner):
 #
 #  fnt appelée par un clic souris sur la zone de dessin
 
+def newPlayer():
+    """cette fonction change le joueur"""
+    global player
+    if player == 1:
+        player = 2
+    else:
+        player = 1
+
+def getCaseDisp():
+    """retourne toutes les cases disponibles"""
+    liste = []
+    for i in range(3):
+        for j in range(3):
+            if Grille[i][j] == 0:
+                liste.append([i,j])
+    return liste
+
+def thisIsIA():
+    """cette fonction fait jouer l'IA"""
+    global player
+    cases_disp = getCaseDisp()
+    ia_choice = random.randint(0,len(cases_disp)-1)
+    # choice = cases_disp[ia_choice] # pour aleatoire
+    choice = simulaIA()[0] #min max implementation
+    #print(choice)
+    Play(choice[0],choice[1],player)
+    newPlayer()
+    winner = Victoire() # on stock le resultat actuel 
+    if (winner or MatchNul()):
+        Dessine(winner) #on dessine
+        Window.update() # maj de la fenetre avant la fin du tour de tkinter
+        Window.after(3000) # pause de 3secondes
+        ResetGame(winner) #on met les cases a 0
+        Dessine(winner) # on dessine la couleur du gagnant
+        return
+    Dessine(winner) # on dessine le jeu
+
+def simulaIA():
+    """simulation pour l'ia en cherchant toujours la meilleur solution"""
+    winner = Victoire()
+    if winner == 2:
+        return 1
+    elif winner == 1:
+        return -1
+    if MatchNul():
+        return 0
+    cases_disp = getCaseDisp()
+    result = []
+    for couple in cases_disp:
+        Play(couple[0],couple[1],2)
+        value = simulaPLY()
+        if type(value) is not int:
+            value = value[1]
+        result.append([couple,value])
+        Grille[couple[0]][couple[1]] = 0
+    return maxi(result)
+    
+    
+def simulaPLY():
+    """simulation pour le joueur en cherchant la pire solution"""
+    winner = Victoire()
+    if winner == 2:
+        return 1
+    elif winner == 1:
+        return -1
+    if MatchNul():
+        return 0
+    cases_disp = getCaseDisp()
+    result = []
+    for couple in cases_disp:
+        Play(couple[0],couple[1],1)
+        value = simulaIA()
+        if type(value) is not int:
+            value = value[1]
+        result.append([couple,value])
+        Grille[couple[0]][couple[1]] = 0
+    return mini(result)
+
+def maxi(liste):
+    """fonction maximum pour une coordonée et une valeur"""
+    max = -2
+    coord = [0,0]
+    for elt in liste:
+        if elt[1] >= max:
+            max = elt[1]
+            coord = elt[0]
+    return [coord,max] 
+
+def mini(liste):
+    """fonction minimum pour une coordonée et une valeur"""
+    min = 2
+    coord = [0,0]
+    for elt in liste:
+        if elt[1] < min:
+            min = elt[1]
+            coord = elt[0]
+    return [coord,min] 
+    
 def MouseClick(event):
+    """fonction lance quand on clic"""
     global player
     global winner
     Window.focus_set()
@@ -160,15 +258,24 @@ def MouseClick(event):
     if ( (x<0) or (x>2) or (y<0) or (y>2) ) : return
      
     print("clicked at", x,y)
-    
-    Play(x,y,player%2+1)  # gestion du joueur humain et de l'IA
+    hasPlay = Play(x,y,player)  # on regarde si le joueur a jouer correctement
+    if hasPlay:
+        newPlayer() # dans ce cas là on change de joueur 
     winner = Victoire()
     if (winner or MatchNul()):
+        Dessine(winner)
+        Window.update()
+        Window.after(3000)
         ResetGame(winner)
+        Dessine(winner)
+        return
     Dessine(winner)
-    player += 1
+    if hasPlay: # si le joueur a bien joué, alors c'est au tour de l'ia
+        Window.update()
+        Window.after(3000)
+        thisIsIA()
 
-canvas.bind('<ButtonPress-1>',    MouseClick)
+canvas.bind('<ButtonPress-1>',  MouseClick)
 
 #####################################################################################
 #
