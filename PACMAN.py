@@ -317,9 +317,16 @@ def IA():
       F[0] += L[choix][0]
       F[1] += L[choix][1]
       #Collision entre pacman et les FANTOMES
-      if( PacManPos[0] - move[0] == F[0]):
-         if( PacManPos[1] - move[1] == F[1]):
-            end = True
+      if PacManPos[0] - move[0] == F[0]:
+        if PacManPos[1] - move[1] == F[1]:
+            if PacManPos[0] == F[0] - L[choix][0]:
+                if PacManPos[1] == F[1] - L[choix][1]:
+                    Window.after(2500)
+                    canvas = tk.Canvas( Frame1, width = screeenWidth, height = screenHeight )
+                    canvas.place(x=0,y=0)
+                    canvas.configure(background='black')
+                    canvas.create_text(screeenWidth // 2, screenHeight//2 , text = "Fin de partie !\n Score ="+str(Score), fill ="yellow", font = PoliceEndText)
+                    end = True
          
       
 
@@ -433,16 +440,17 @@ def UpdatePath(Grille, type, number):
 def EndGame():
    for ghost in Ghosts:
       if PacManPos[0] == ghost[0] and PacManPos[1] == ghost[1]:
+         Window.after(2500)
          canvas = tk.Canvas( Frame1, width = screeenWidth, height = screenHeight )
          canvas.place(x=0,y=0)
          canvas.configure(background='black')
-         canvas.create_text(screeenWidth // 2, screenHeight//2 , text = "Fin de partie !", fill ="yellow", font = PoliceEndText)
+         canvas.create_text(screeenWidth // 2, screenHeight//2 , text = "Fin de partie !\n Score ="+str(Score), fill ="yellow", font = PoliceEndText)
          end = True
    if Score == 1000:
       canvas = tk.Canvas( Frame1, width = screeenWidth, height = screenHeight )
       canvas.place(x=0,y=0)
       canvas.configure(background='black')
-      canvas.create_text(screeenWidth // 2, screenHeight//2 , text = "Fin de partie !", fill ="yellow", font = PoliceEndText)
+      canvas.create_text(screeenWidth // 2, screenHeight//2 , text = "Gagné !", fill ="yellow", font = PoliceEndText)
       end = True
    
 
@@ -457,13 +465,11 @@ def EndGame():
 ##   GAME LOOP
 def MainLoop():
   
-
+   IA()
    EndGame()
    if(end != True):
-      
+      EatGUM()
       Affiche()
-      EatGUM() 
-      IA()
       UpdatePath(Grille, '', '')
       UpdatePath(GrilleGhost1, 'Ghost', 1)
       UpdatePath(GrilleGhost2, 'Ghost', 2)
@@ -480,9 +486,3 @@ def MainLoop():
 
 AfficherPage(0)
 Window.mainloop()
-
-   
-   
-    
-   
-   
